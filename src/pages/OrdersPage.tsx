@@ -19,7 +19,7 @@ const OrdersPage = () => {
       case "processing":
         return "secondary";
       case "shipped":
-        return "primary";
+        return "secondary"; // Changed from "primary" to "secondary"
       case "delivered":
         return "outline";
       case "cancelled":

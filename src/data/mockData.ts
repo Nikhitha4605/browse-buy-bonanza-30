@@ -1,4 +1,3 @@
-
 import { Product, Order } from '@/types/product';
 
 export const products: Product[] = [
@@ -106,7 +105,7 @@ export const products: Product[] = [
     name: 'Stainless Steel Water Bottle',
     description: 'Insulated stainless steel water bottle that keeps drinks cold for 24 hours or hot for 12 hours.',
     price: 899,
-    imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80',
     category: 'accessories',
     inStock: true,
     color: 'silver',
@@ -128,7 +127,7 @@ export const products: Product[] = [
     name: 'Denim Jacket',
     description: 'Classic denim jacket with a modern fit, perfect for layering in any season.',
     price: 2799,
-    imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'clothing',
     inStock: true,
     color: 'blue',

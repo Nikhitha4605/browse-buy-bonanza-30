@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -29,7 +28,7 @@ const CheckoutPage = () => {
     city: "",
     state: "",
     zipCode: "",
-    country: "USA",
+    country: "India",
     cardName: "",
     cardNumber: "",
     expDate: "",
@@ -39,8 +38,8 @@ const CheckoutPage = () => {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   // Calculate shipping and tax
-  const shipping = 10;
-  const tax = subtotal * 0.1; // 10% tax
+  const shipping = 100;
+  const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + shipping + tax;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +95,37 @@ const CheckoutPage = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              
+              // Validate form
+              const requiredFields = [
+                "firstName", "lastName", "email", "address", 
+                "city", "state", "zipCode", "country", 
+                "cardName", "cardNumber", "expDate", "cvv"
+              ];
+              
+              const missingFields = requiredFields.filter(field => !formData[field]);
+              
+              if (missingFields.length > 0) {
+                toast.error("Please fill in all required fields");
+                return;
+              }
+              
+              if (cart.length === 0) {
+                toast.error("Your cart is empty");
+                return;
+              }
+
+              // Simulate order processing
+              setIsProcessingOrder(true);
+              
+              setTimeout(() => {
+                clearCart();
+                navigate("/order-confirmation");
+                setIsProcessingOrder(false);
+              }, 1500);
+            }}>
               {/* Shipping Address */}
               <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
@@ -108,7 +137,7 @@ const CheckoutPage = () => {
                       id="firstName"
                       name="firstName"
                       value={formData.firstName}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -118,7 +147,7 @@ const CheckoutPage = () => {
                       id="lastName"
                       name="lastName"
                       value={formData.lastName}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -131,7 +160,7 @@ const CheckoutPage = () => {
                     name="email"
                     type="email"
                     value={formData.email}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                     required
                   />
                 </div>
@@ -142,7 +171,7 @@ const CheckoutPage = () => {
                     id="address"
                     name="address"
                     value={formData.address}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                     required
                   />
                 </div>
@@ -154,7 +183,7 @@ const CheckoutPage = () => {
                       id="city"
                       name="city"
                       value={formData.city}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -164,7 +193,7 @@ const CheckoutPage = () => {
                       id="state"
                       name="state"
                       value={formData.state}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -172,12 +201,12 @@ const CheckoutPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   <div>
-                    <Label htmlFor="zipCode">ZIP Code</Label>
+                    <Label htmlFor="zipCode">PIN Code</Label>
                     <Input
                       id="zipCode"
                       name="zipCode"
                       value={formData.zipCode}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -186,17 +215,17 @@ const CheckoutPage = () => {
                     <Select
                       value={formData.country}
                       onValueChange={(value) =>
-                        handleSelectChange("country", value)
+                        setFormData(prev => ({ ...prev, country: value }))
                       }
                     >
                       <SelectTrigger id="country">
                         <SelectValue placeholder="Select a country" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="India">India</SelectItem>
                         <SelectItem value="USA">United States</SelectItem>
-                        <SelectItem value="CAN">Canada</SelectItem>
-                        <SelectItem value="MEX">Mexico</SelectItem>
-                        <SelectItem value="GBR">United Kingdom</SelectItem>
+                        <SelectItem value="UAE">United Arab Emirates</SelectItem>
+                        <SelectItem value="UK">United Kingdom</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -215,7 +244,7 @@ const CheckoutPage = () => {
                     id="cardName"
                     name="cardName"
                     value={formData.cardName}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                     required
                   />
                 </div>
@@ -227,7 +256,7 @@ const CheckoutPage = () => {
                     name="cardNumber"
                     placeholder="1234 5678 9012 3456"
                     value={formData.cardNumber}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                     required
                   />
                 </div>
@@ -240,7 +269,7 @@ const CheckoutPage = () => {
                       name="expDate"
                       placeholder="MM/YY"
                       value={formData.expDate}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -251,7 +280,7 @@ const CheckoutPage = () => {
                       name="cvv"
                       placeholder="123"
                       value={formData.cvv}
-                      onChange={handleInputChange}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                       required
                     />
                   </div>
@@ -267,7 +296,7 @@ const CheckoutPage = () => {
                 >
                   {isProcessingOrder
                     ? "Processing Order..."
-                    : `Place Order • $${total.toFixed(2)}`}
+                    : `Place Order • ₹${total.toLocaleString('en-IN')}`}
                 </Button>
               </div>
             </form>
@@ -289,7 +318,7 @@ const CheckoutPage = () => {
                       </p>
                     </div>
                     <p className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                     </p>
                   </div>
                 ))}
@@ -299,19 +328,19 @@ const CheckoutPage = () => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span>${shipping.toFixed(2)}</span>
+                  <span>₹{shipping.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax (10%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span className="text-gray-600">GST (18%)</span>
+                  <span>₹{tax.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg pt-2 border-t">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

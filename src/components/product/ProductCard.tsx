@@ -38,8 +38,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </p>
           <div className="flex items-center justify-between">
             <span className="text-xl font-bold text-gray-900">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toLocaleString('en-IN')}
             </span>
+            <div className="flex items-center text-sm text-gray-500">
+              <span className="mr-2 capitalize">{product.color}</span>•
+              <span className="ml-2 capitalize">{product.type}</span>
+            </div>
           </div>
         </div>
       </Link>

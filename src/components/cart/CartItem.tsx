@@ -25,7 +25,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <h3 className="font-medium text-gray-900">{item.name}</h3>
         <p className="text-sm text-gray-500 line-clamp-1">{item.description}</p>
         <div className="mt-1 text-brand font-semibold">
-          ${item.price.toFixed(2)}
+          ₹{item.price.toLocaleString('en-IN')}
         </div>
       </div>
       <div className="flex flex-col sm:flex-row items-center mt-3 sm:mt-0">

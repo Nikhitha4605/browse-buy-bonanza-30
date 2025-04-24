@@ -11,8 +11,8 @@ const CartSummary: React.FC = () => {
   const navigate = useNavigate();
   
   // Calculate shipping and tax
-  const shipping = subtotal > 0 ? 10 : 0;
-  const tax = subtotal * 0.1; // 10% tax
+  const shipping = subtotal > 0 ? 100 : 0;
+  const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + shipping + tax;
 
   const handleCheckout = () => {
@@ -29,20 +29,20 @@ const CartSummary: React.FC = () => {
       <div className="space-y-3">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>₹{subtotal.toLocaleString('en-IN')}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Shipping</span>
-          <span>${shipping.toFixed(2)}</span>
+          <span>₹{shipping.toLocaleString('en-IN')}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Tax (10%)</span>
-          <span>${tax.toFixed(2)}</span>
+          <span className="text-gray-600">GST (18%)</span>
+          <span>₹{tax.toLocaleString('en-IN')}</span>
         </div>
         <div className="border-t pt-3 mt-3">
           <div className="flex justify-between font-semibold">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>₹{total.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>

@@ -1,110 +1,111 @@
+
 import { Product, Order } from '@/types/product';
 
 export const products: Product[] = [
   {
     id: '1',
-    name: 'Premium Headphones',
-    description: 'Wireless noise-cancelling headphones with premium sound quality and 24-hour battery life.',
-    price: 199.99,
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3300&q=80',
-    category: 'electronics',
+    name: 'Stylish Sneakers',
+    description: 'Comfortable and stylish sneakers perfect for everyday wear and casual outings.',
+    price: 2499,
+    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
+    category: 'footwear',
     inStock: true,
-    color: 'black',
-    type: 'audio'
+    color: 'white',
+    type: 'footwear'
   },
   {
     id: '2',
-    name: 'Smart Watch',
-    description: 'Health and fitness tracker with heart rate monitoring, GPS, and workout tracking capabilities.',
-    price: 249.99,
-    imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3264&q=80',
-    category: 'electronics',
-    inStock: true,
-    color: 'silver',
-    type: 'wearables'
-  },
-  {
-    id: '3',
     name: 'Leather Backpack',
     description: 'Handcrafted genuine leather backpack with multiple compartments and laptop sleeve.',
-    price: 129.99,
+    price: 3200,
     imageUrl: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3328&q=80',
     category: 'accessories',
     inStock: true,
     color: 'brown',
-    type: 'bags'
+    type: 'accessories'
+  },
+  {
+    id: '3',
+    name: 'Smart Watch',
+    description: 'Health and fitness tracker with heart rate monitoring, GPS, and workout tracking capabilities.',
+    price: 5999,
+    imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3264&q=80',
+    category: 'electronics',
+    inStock: true,
+    color: 'black',
+    type: 'electronics'
   },
   {
     id: '4',
-    name: 'Mechanical Keyboard',
-    description: 'RGB backlit mechanical gaming keyboard with customizable key switches.',
-    price: 89.99,
-    imageUrl: 'https://images.unsplash.com/photo-1541140532154-b024d705b90a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3276&q=80',
-    category: 'electronics',
-    inStock: true,
-    color: 'black',
-    type: 'accessories'
-  },
-  {
-    id: '5',
-    name: 'Running Shoes',
-    description: 'Lightweight, cushioned running shoes designed for comfort and performance.',
-    price: 119.99,
-    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
+    name: 'Cotton T-Shirt',
+    description: 'Premium cotton t-shirt with a comfortable fit and stylish design.',
+    price: 799,
+    imageUrl: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80',
     category: 'clothing',
     inStock: true,
     color: 'blue',
-    type: 'shoes'
+    type: 'clothing'
+  },
+  {
+    id: '5',
+    name: 'Noise Cancelling Headphones',
+    description: 'Wireless noise-cancelling headphones with premium sound quality and 24-hour battery life.',
+    price: 8499,
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3300&q=80',
+    category: 'electronics',
+    inStock: true,
+    color: 'silver',
+    type: 'electronics'
   },
   {
     id: '6',
-    name: 'Coffee Maker',
-    description: 'Programmable coffee maker with thermal carafe and auto-brew functionality.',
-    price: 79.99,
-    imageUrl: 'https://images.unsplash.com/photo-1572119865084-43c285814d63?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
-    category: 'home',
+    name: 'Denim Jeans',
+    description: 'Classic denim jeans with a modern fit, perfect for casual wear.',
+    price: 1999,
+    imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3326&q=80',
+    category: 'clothing',
     inStock: true,
-    color: 'black',
-    type: 'appliances'
+    color: 'blue',
+    type: 'clothing'
   },
   {
     id: '7',
-    name: 'Wireless Mouse',
-    description: 'Ergonomic wireless mouse with long battery life and precision tracking.',
-    price: 39.99,
-    imageUrl: 'https://images.unsplash.com/photo-1605773527852-c546a8584ea3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3274&q=80',
-    category: 'electronics',
+    name: 'Wooden Desk Organizer',
+    description: 'Elegant wooden desk organizer with multiple compartments for stationery and accessories.',
+    price: 1499,
+    imageUrl: 'https://images.unsplash.com/photo-1544247341-88c7f00cf0c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
+    category: 'home',
     inStock: true,
-    color: 'white',
-    type: 'accessories'
+    color: 'brown',
+    type: 'home'
   },
   {
     id: '8',
     name: 'Yoga Mat',
     description: 'Non-slip, eco-friendly yoga mat with alignment guides for proper positioning.',
-    price: 49.99,
+    price: 1299,
     imageUrl: 'https://images.unsplash.com/photo-1592432678016-e910b452f9a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'fitness',
     inStock: true,
     color: 'green',
-    type: 'equipment'
+    type: 'fitness'
   },
   {
     id: '9',
-    name: 'Desk Lamp',
+    name: 'LED Desk Lamp',
     description: 'Adjustable LED desk lamp with multiple brightness levels and color temperatures.',
-    price: 59.99,
+    price: 1799,
     imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3266&q=80',
     category: 'home',
     inStock: true,
     color: 'black',
-    type: 'lighting'
+    type: 'home'
   },
   {
     id: '10',
-    name: 'Water Bottle',
+    name: 'Stainless Steel Water Bottle',
     description: 'Insulated stainless steel water bottle that keeps drinks cold for 24 hours or hot for 12 hours.',
-    price: 29.99,
+    price: 899,
     imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80',
     category: 'accessories',
     inStock: true,
@@ -113,20 +114,20 @@ export const products: Product[] = [
   },
   {
     id: '11',
-    name: 'Smart Speaker',
-    description: 'Voice-controlled smart speaker with built-in virtual assistant and premium sound quality.',
-    price: 149.99,
+    name: 'Bluetooth Speaker',
+    description: 'Portable Bluetooth speaker with rich sound quality and 10-hour battery life.',
+    price: 2499,
     imageUrl: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3312&q=80',
     category: 'electronics',
     inStock: false,
     color: 'gray',
-    type: 'audio'
+    type: 'electronics'
   },
   {
     id: '12',
     name: 'Denim Jacket',
     description: 'Classic denim jacket with a modern fit, perfect for layering in any season.',
-    price: 89.99,
+    price: 2799,
     imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'clothing',
     inStock: true,

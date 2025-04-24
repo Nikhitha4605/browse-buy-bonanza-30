@@ -8,6 +8,7 @@ import { products } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -79,13 +80,20 @@ const ProductsPage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Shop All Products</h1>
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500">
+            Shop All Products
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Discover our curated collection of premium products, carefully selected for quality and style.
+          </p>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar with all filters */}
           <div className="lg:w-1/4">
-            <div className="sticky top-24">
+            <div className="sticky top-24 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6 border border-gray-100">
               <FilterSection
                 selectedCategory={selectedCategory}
                 selectedColor={selectedColor}
@@ -112,7 +120,7 @@ const ProductsPage = () => {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 border-gray-200 focus:border-brand focus:ring-brand"
                   />
                 </div>
                 <Button type="submit" className="bg-brand hover:bg-brand/90">
@@ -143,13 +151,25 @@ const ProductsPage = () => {
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                {filteredProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-center py-12">
+              <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="text-xl font-medium mb-2">No products found</h3>
                 <p className="text-gray-600 mb-4">
                   Try adjusting your search or filter to find what you're looking for.

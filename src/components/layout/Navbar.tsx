@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, User, Menu, X } from "lucide-react";
@@ -27,7 +26,7 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <span className="text-xl font-bold text-brand">
+              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500 tracking-wider hover:scale-105 transition-transform duration-300">
                 SnapShop
               </span>
             </Link>

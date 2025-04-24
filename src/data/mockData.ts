@@ -72,7 +72,7 @@ export const products: Product[] = [
     name: 'Wooden Desk Organizer',
     description: 'Elegant wooden desk organizer with multiple compartments for stationery and accessories.',
     price: 1499,
-    imageUrl: 'https://images.unsplash.com/photo-1544247341-88c7f00cf0c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
     category: 'home',
     inStock: true,
     color: 'brown',

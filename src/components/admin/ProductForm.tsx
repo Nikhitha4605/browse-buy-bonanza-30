@@ -14,7 +14,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
 import { Product } from "@/types/product";
-import { categories } from "@/data/mockData";
+import { categories, colors, types } from "@/data/mockData";
 
 interface ProductFormProps {
   product?: Product;
@@ -29,7 +29,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
     price: 0,
     imageUrl: "",
     category: categories[0],
-    inStock: true
+    inStock: true,
+    color: colors[0],
+    type: types[0]
   });
 
   useEffect(() => {
@@ -40,7 +42,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
         price: product.price,
         imageUrl: product.imageUrl,
         category: product.category,
-        inStock: product.inStock
+        inStock: product.inStock,
+        color: product.color,
+        type: product.type
       });
     }
   }, [product]);
@@ -142,6 +146,50 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
           <SelectContent>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>{category}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="color">Color</Label>
+        <Select
+          value={formData.color}
+          onValueChange={(value) => handleSelectChange("color", value)}
+        >
+          <SelectTrigger id="color">
+            <SelectValue placeholder="Select a color" />
+          </SelectTrigger>
+          <SelectContent>
+            {colors.map((color) => (
+              <SelectItem key={color} value={color}>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-4 h-4 rounded-full border border-gray-200" 
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="capitalize">{color}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="type">Type</Label>
+        <Select
+          value={formData.type}
+          onValueChange={(value) => handleSelectChange("type", value)}
+        >
+          <SelectTrigger id="type">
+            <SelectValue placeholder="Select a type" />
+          </SelectTrigger>
+          <SelectContent>
+            {types.map((type) => (
+              <SelectItem key={type} value={type}>
+                <span className="capitalize">{type}</span>
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>

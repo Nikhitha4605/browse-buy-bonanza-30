@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/product/ProductCard";
-import CategoryFilter from "@/components/product/CategoryFilter";
+import FilterSection from "@/components/product/FilterSection";
 import { products } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,20 +14,24 @@ const ProductsPage = () => {
   const initialCategoryParam = searchParams.get("category");
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategoryParam);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const maxPrice = Math.max(...products.map(p => p.price));
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, maxPrice]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Update the URL when category changes
+  // Update URL when filters change
   useEffect(() => {
-    if (selectedCategory) {
-      setSearchParams({ category: selectedCategory });
-    } else {
-      setSearchParams({});
-    }
-  }, [selectedCategory, setSearchParams]);
+    const params = new URLSearchParams();
+    if (selectedCategory) params.set("category", selectedCategory);
+    if (selectedColor) params.set("color", selectedColor);
+    if (selectedType) params.set("type", selectedType);
+    setSearchParams(params);
+  }, [selectedCategory, selectedColor, selectedType, setSearchParams]);
 
-  // Filter products based on category and search query
+  // Filter products based on all criteria
   useEffect(() => {
     setIsLoading(true);
     
@@ -36,10 +40,23 @@ const ProductsPage = () => {
       
       // Filter by category
       if (selectedCategory) {
-        filtered = filtered.filter(
-          (product) => product.category === selectedCategory
-        );
+        filtered = filtered.filter(product => product.category === selectedCategory);
       }
+      
+      // Filter by color
+      if (selectedColor) {
+        filtered = filtered.filter(product => product.color === selectedColor);
+      }
+      
+      // Filter by type
+      if (selectedType) {
+        filtered = filtered.filter(product => product.type === selectedType);
+      }
+      
+      // Filter by price range
+      filtered = filtered.filter(
+        product => product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
       
       // Filter by search query
       if (searchQuery) {
@@ -53,11 +70,7 @@ const ProductsPage = () => {
       setFilteredProducts(filtered);
       setIsLoading(false);
     }, 300); // Small timeout to simulate API call
-  }, [selectedCategory, searchQuery]);
-
-  const handleCategorySelect = (category: string | null) => {
-    setSelectedCategory(category);
-  };
+  }, [selectedCategory, selectedColor, selectedType, priceRange, searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,12 +83,19 @@ const ProductsPage = () => {
         <h1 className="text-3xl font-bold mb-8">Shop All Products</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
+          {/* Sidebar with all filters */}
           <div className="lg:w-1/4">
             <div className="sticky top-24">
-              <CategoryFilter
+              <FilterSection
                 selectedCategory={selectedCategory}
-                onSelectCategory={handleCategorySelect}
+                selectedColor={selectedColor}
+                selectedType={selectedType}
+                priceRange={priceRange}
+                maxPrice={maxPrice}
+                onSelectCategory={setSelectedCategory}
+                onSelectColor={setSelectedColor}
+                onSelectType={setSelectedType}
+                onPriceRangeChange={setPriceRange}
               />
             </div>
           </div>
@@ -102,7 +122,7 @@ const ProductsPage = () => {
             </div>
 
             {/* Results info */}
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6">
               <p className="text-gray-600">
                 Showing {filteredProducts.length} product
                 {filteredProducts.length !== 1 && "s"}
@@ -138,6 +158,9 @@ const ProductsPage = () => {
                   variant="outline"
                   onClick={() => {
                     setSelectedCategory(null);
+                    setSelectedColor(null);
+                    setSelectedType(null);
+                    setPriceRange([0, maxPrice]);
                     setSearchQuery("");
                   }}
                 >

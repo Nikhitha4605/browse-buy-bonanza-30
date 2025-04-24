@@ -1,4 +1,3 @@
-
 import { Product, Order } from '@/types/product';
 
 export const products: Product[] = [
@@ -9,7 +8,9 @@ export const products: Product[] = [
     price: 199.99,
     imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3300&q=80',
     category: 'electronics',
-    inStock: true
+    inStock: true,
+    color: 'black',
+    type: 'audio'
   },
   {
     id: '2',
@@ -18,7 +19,9 @@ export const products: Product[] = [
     price: 249.99,
     imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3264&q=80',
     category: 'electronics',
-    inStock: true
+    inStock: true,
+    color: 'silver',
+    type: 'wearables'
   },
   {
     id: '3',
@@ -27,7 +30,9 @@ export const products: Product[] = [
     price: 129.99,
     imageUrl: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3328&q=80',
     category: 'accessories',
-    inStock: true
+    inStock: true,
+    color: 'brown',
+    type: 'bags'
   },
   {
     id: '4',
@@ -36,7 +41,9 @@ export const products: Product[] = [
     price: 89.99,
     imageUrl: 'https://images.unsplash.com/photo-1541140532154-b024d705b90a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3276&q=80',
     category: 'electronics',
-    inStock: true
+    inStock: true,
+    color: 'black',
+    type: 'accessories'
   },
   {
     id: '5',
@@ -45,7 +52,9 @@ export const products: Product[] = [
     price: 119.99,
     imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'clothing',
-    inStock: true
+    inStock: true,
+    color: 'blue',
+    type: 'shoes'
   },
   {
     id: '6',
@@ -54,7 +63,9 @@ export const products: Product[] = [
     price: 79.99,
     imageUrl: 'https://images.unsplash.com/photo-1572119865084-43c285814d63?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'home',
-    inStock: true
+    inStock: true,
+    color: 'black',
+    type: 'appliances'
   },
   {
     id: '7',
@@ -63,7 +74,9 @@ export const products: Product[] = [
     price: 39.99,
     imageUrl: 'https://images.unsplash.com/photo-1605773527852-c546a8584ea3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3274&q=80',
     category: 'electronics',
-    inStock: true
+    inStock: true,
+    color: 'white',
+    type: 'accessories'
   },
   {
     id: '8',
@@ -72,7 +85,9 @@ export const products: Product[] = [
     price: 49.99,
     imageUrl: 'https://images.unsplash.com/photo-1592432678016-e910b452f9a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'fitness',
-    inStock: true
+    inStock: true,
+    color: 'green',
+    type: 'equipment'
   },
   {
     id: '9',
@@ -81,7 +96,9 @@ export const products: Product[] = [
     price: 59.99,
     imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3266&q=80',
     category: 'home',
-    inStock: true
+    inStock: true,
+    color: 'black',
+    type: 'lighting'
   },
   {
     id: '10',
@@ -90,7 +107,9 @@ export const products: Product[] = [
     price: 29.99,
     imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80',
     category: 'accessories',
-    inStock: true
+    inStock: true,
+    color: 'silver',
+    type: 'accessories'
   },
   {
     id: '11',
@@ -99,7 +118,9 @@ export const products: Product[] = [
     price: 149.99,
     imageUrl: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3312&q=80',
     category: 'electronics',
-    inStock: false
+    inStock: false,
+    color: 'gray',
+    type: 'audio'
   },
   {
     id: '12',
@@ -108,9 +129,16 @@ export const products: Product[] = [
     price: 89.99,
     imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80',
     category: 'clothing',
-    inStock: true
+    inStock: true,
+    color: 'blue',
+    type: 'clothing'
   }
 ];
+
+// Get unique categories, colors and types from products
+export const categories = Array.from(new Set(products.map(product => product.category)));
+export const colors = Array.from(new Set(products.map(product => product.color)));
+export const types = Array.from(new Set(products.map(product => product.type)));
 
 export const orders: Order[] = [
   {
@@ -200,6 +228,3 @@ export const orders: Order[] = [
 ];
 
 // Get the unique categories from products
-export const categories = Array.from(
-  new Set(products.map(product => product.category))
-);

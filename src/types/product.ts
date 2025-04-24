@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -7,6 +6,8 @@ export interface Product {
   imageUrl: string;
   category: string;
   inStock: boolean;
+  color: string;
+  type: string;
 }
 
 export interface Order {

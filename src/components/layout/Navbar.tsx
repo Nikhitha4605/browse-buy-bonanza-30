@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, User, Menu, X } from "lucide-react";
@@ -5,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { CommandMenu } from "@/components/CommandMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +21,7 @@ const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const { totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <header className="bg-white border-b sticky top-0 z-50">
@@ -59,6 +63,11 @@ const Navbar = () => {
               Contact
             </Link>
           </nav>
+
+          {/* Command Menu - Desktop */}
+          <div className="hidden md:flex md:flex-1 md:justify-center md:mx-4">
+            <CommandMenu />
+          </div>
 
           {/* Desktop User Actions */}
           <div className="hidden md:flex md:items-center md:space-x-4">
@@ -112,16 +121,18 @@ const Navbar = () => {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-brand-accent">
-                    {totalItems}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
+            {!isMenuOpen && (
+              <Link to="/cart" className="relative">
+                <Button variant="ghost" size="icon">
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-brand-accent">
+                      {totalItems}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -137,6 +148,11 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="container mx-auto px-4 pt-2 pb-3 space-y-1 sm:px-3">
+            {/* Mobile Search */}
+            <div className="py-3">
+              <CommandMenu />
+            </div>
+            
             <Link
               to="/"
               className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-brand"

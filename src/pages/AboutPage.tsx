@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -9,17 +8,17 @@ const AboutPage = () => {
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-6">About BrowseBuyBonanza</h1>
+          <h1 className="text-4xl font-bold mb-6">About SnapShop</h1>
           
           <div className="prose max-w-none">
             <p className="text-xl text-gray-600 mb-8">
-              BrowseBuyBonanza is your ultimate online shopping destination, offering quality products across multiple categories with exceptional customer experience.
+              SnapShop is your ultimate online shopping destination, offering quality products across multiple categories with exceptional customer experience.
             </p>
             
             <div className="mb-12">
               <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
               <p className="mb-4">
-                Founded in 2023, BrowseBuyBonanza started with a simple mission: to make online shopping more accessible, enjoyable, and rewarding for everyone. We believe that e-commerce should be more than just transactions—it should be about creating memorable experiences and building lasting relationships with our customers.
+                Founded in 2023, SnapShop started with a simple mission: to make online shopping more accessible, enjoyable, and rewarding for everyone. We believe that e-commerce should be more than just transactions—it should be about creating memorable experiences and building lasting relationships with our customers.
               </p>
               <p>
                 What began as a small collection of curated products has since grown into a comprehensive online marketplace offering thousands of items across multiple categories, from cutting-edge electronics to stylish fashion accessories and everything in between.
@@ -29,7 +28,7 @@ const AboutPage = () => {
             <div className="mb-12">
               <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
               <p>
-                At BrowseBuyBonanza, our mission is to provide customers with:
+                At SnapShop, our mission is to provide customers with:
               </p>
               <ul className="list-disc pl-6 space-y-2 my-4">
                 <li>High-quality products at competitive prices</li>

@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, Tag, Home, Mic } from "lucide-react";
 import { 
@@ -12,113 +13,21 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { products, categories } from "@/data/mockData";
-import { useToast } from "@/hooks/use-toast";
-
-declare global {
-  interface Window {
-    SpeechRecognition?: typeof SpeechRecognition;
-    webkitSpeechRecognition?: typeof SpeechRecognition;
-  }
-}
+import { useVoiceSearch } from "@/hooks/use-voice-search";
+import { useCommandShortcut } from "@/hooks/use-command-shortcut";
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const { isListening, initializeVoiceSearch, startVoiceSearch } = useVoiceSearch();
+
+  const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
+  useCommandShortcut(toggleOpen);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
-      }
-    };
-    
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    initializeVoiceSearch(setSearchTerm);
   }, []);
-
-  useEffect(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognitionAPI) {
-      console.log("Speech recognition not supported in this browser");
-      return;
-    }
-    
-    try {
-      recognitionRef.current = new SpeechRecognitionAPI();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-US';
-      
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
-        setSearchTerm(transcript);
-        setIsListening(false);
-        toast({
-          title: "Voice search completed",
-          description: `Searching for "${transcript}"`,
-        });
-      };
-      
-      recognitionRef.current.onerror = () => {
-        setIsListening(false);
-        toast({
-          title: "Voice search error",
-          description: "There was an error. Please try again.",
-          variant: "destructive",
-        });
-      };
-      
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-    } catch (error) {
-      console.error("Error initializing speech recognition:", error);
-    }
-    
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (error) {
-          console.error("Error stopping speech recognition:", error);
-        }
-      }
-    };
-  }, [toast]);
-
-  const startVoiceSearch = () => {
-    if (!recognitionRef.current) {
-      toast({
-        title: "Voice search not supported",
-        description: "Your browser doesn't support voice recognition.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsListening(true);
-      toast({
-        title: "Listening...",
-        description: "Say what you're looking for.",
-      });
-      recognitionRef.current.start();
-    } catch (error) {
-      setIsListening(false);
-      toast({
-        title: "Voice search error",
-        description: "There was an error starting the voice recognition. Please try again.",
-        variant: "destructive",
-      });
-      console.error("Voice recognition error:", error);
-    }
-  };
 
   const handleProductSearch = (searchQuery: string) => {
     navigate(`/products?search=${searchQuery}`);
@@ -161,22 +70,12 @@ export function CommandMenu() {
           <CommandEmpty>No results found.</CommandEmpty>
           
           <CommandGroup heading="Navigation">
-            <CommandItem
-              onSelect={() => {
-                navigate("/");
-                setOpen(false);
-              }}
-            >
+            <CommandItem onSelect={() => { navigate("/"); setOpen(false); }}>
               <Home className="mr-2 h-4 w-4" />
               <span>Home</span>
             </CommandItem>
             
-            <CommandItem
-              onSelect={() => {
-                navigate("/products");
-                setOpen(false);
-              }}
-            >
+            <CommandItem onSelect={() => { navigate("/products"); setOpen(false); }}>
               <ShoppingBag className="mr-2 h-4 w-4" />
               <span>All Products</span>
             </CommandItem>
@@ -226,9 +125,7 @@ export function CommandMenu() {
               ))}
               
               {searchTerm && (
-                <CommandItem
-                  onSelect={() => handleProductSearch(searchTerm)}
-                >
+                <CommandItem onSelect={() => handleProductSearch(searchTerm)}>
                   <Search className="mr-2 h-4 w-4" />
                   <span>Search all products for "{searchTerm}"</span>
                 </CommandItem>

@@ -55,7 +55,7 @@ export function CommandMenu() {
       recognitionRef.current.interimResults = false;
       recognitionRef.current.lang = 'en-US';
       
-      recognitionRef.current.onresult = (event) => {
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setSearchTerm(transcript);
         setIsListening(false);

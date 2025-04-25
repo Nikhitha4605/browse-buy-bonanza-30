@@ -17,6 +17,9 @@ import OrdersPage from "./pages/OrdersPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
+import ARCameraPage from "./pages/ARCameraPage";
+import VoiceAssistantPage from "./pages/VoiceAssistantPage";
+import MembershipPage from "./pages/MembershipPage";
 
 // Context Providers
 import { AuthProvider } from "./context/AuthContext";
@@ -45,6 +48,9 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/ar-camera" element={<ARCameraPage />} />
+              <Route path="/voice-assistant" element={<VoiceAssistantPage />} />
+              <Route path="/membership" element={<MembershipPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

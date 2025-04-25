@@ -8,10 +8,16 @@ export const useVoiceSearch = () => {
   const { toast } = useToast();
 
   const initializeVoiceSearch = (onTranscript: (text: string) => void) => {
-    const SpeechRecognitionAPI = window.webkitSpeechRecognition || window.SpeechRecognition;
+    // Support both standard and webkit prefixed versions
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognitionAPI) {
-      console.log("Speech recognition not supported in this browser");
+      console.error("Speech recognition not supported in this browser");
+      toast({
+        title: "Voice search not available",
+        description: "Your browser does not support speech recognition.",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -31,7 +37,8 @@ export const useVoiceSearch = () => {
         });
       };
       
-      recognitionRef.current.onerror = () => {
+      recognitionRef.current.onerror = (event) => {
+        console.error("Speech recognition error:", event);
         setIsListening(false);
         toast({
           title: "Voice search error",
@@ -45,6 +52,11 @@ export const useVoiceSearch = () => {
       };
     } catch (error) {
       console.error("Error initializing speech recognition:", error);
+      toast({
+        title: "Voice search error",
+        description: "Could not initialize voice recognition.",
+        variant: "destructive",
+      });
     }
   };
 

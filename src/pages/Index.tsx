@@ -147,7 +147,9 @@ const Index = () => {
                 </li>
               </ul>
               
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">Join SnapShop Plus</Button>
+              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => navigate("/membership")}>
+                Join SnapShop Plus
+              </Button>
             </div>
             
             {/* SnapPrime */}
@@ -179,7 +181,9 @@ const Index = () => {
                 </li>
               </ul>
               
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">Try SnapPrime Free</Button>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate("/membership")}>
+                Try SnapPrime Free
+              </Button>
             </div>
           </div>
         </div>

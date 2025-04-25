@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, Tag, Home, Mic } from "lucide-react";
@@ -15,15 +14,21 @@ import { Button } from "@/components/ui/button";
 import { products, categories } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+}
+
 export function CommandMenu() {
   const [open, setOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  // Register keyboard shortcut
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -36,21 +41,21 @@ export function CommandMenu() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  // Initialize speech recognition
   useEffect(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognitionAPI) {
+      console.log("Speech recognition not supported in this browser");
       return;
     }
     
-    // Initialize speech recognition
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition();
+    try {
+      recognitionRef.current = new SpeechRecognitionAPI();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
       recognitionRef.current.lang = 'en-US';
       
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setSearchTerm(transcript);
         setIsListening(false);
@@ -60,7 +65,7 @@ export function CommandMenu() {
         });
       };
       
-      recognitionRef.current.onerror = (event: any) => {
+      recognitionRef.current.onerror = () => {
         setIsListening(false);
         toast({
           title: "Voice search error",
@@ -72,16 +77,21 @@ export function CommandMenu() {
       recognitionRef.current.onend = () => {
         setIsListening(false);
       };
+    } catch (error) {
+      console.error("Error initializing speech recognition:", error);
     }
     
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error("Error stopping speech recognition:", error);
+        }
       }
     };
   }, [toast]);
 
-  // Handle voice search
   const startVoiceSearch = () => {
     if (!recognitionRef.current) {
       toast({

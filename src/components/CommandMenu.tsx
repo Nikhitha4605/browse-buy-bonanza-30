@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, Tag, Home } from "lucide-react";
+import { Search, ShoppingBag, Tag, Home, Mic } from "lucide-react";
 import { 
   CommandDialog,
   CommandEmpty,
@@ -11,11 +11,16 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import { products, categories } from "@/data/mockData";
+import { useToast } from "@/hooks/use-toast";
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Register keyboard shortcut
   useEffect(() => {
@@ -29,6 +34,38 @@ export function CommandMenu() {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+
+  // Handle voice search
+  const startVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: "Voice search not supported",
+        description: "Your browser doesn't support voice recognition.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsListening(true);
+    
+    // This is just a mock implementation since actual speech recognition requires browser permissions
+    // In a real implementation, we would use the Web Speech API
+    toast({
+      title: "Listening...",
+      description: "Say what you're looking for.",
+    });
+    
+    // Simulate speech recognition with timeout
+    setTimeout(() => {
+      setIsListening(false);
+      // Mock result
+      setSearchTerm("wireless headphones");
+      toast({
+        title: "Voice search completed",
+        description: "Searching for 'wireless headphones'",
+      });
+    }, 2000);
+  };
 
   return (
     <>
@@ -44,7 +81,23 @@ export function CommandMenu() {
       </button>
       
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type to search..." />
+        <div className="flex items-center border-b">
+          <CommandInput 
+            placeholder="Type to search..." 
+            value={searchTerm}
+            onValueChange={setSearchTerm}
+            className="flex-1"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={startVoiceSearch}
+            className="mr-2"
+            disabled={isListening}
+          >
+            <Mic className={`h-4 w-4 ${isListening ? 'text-red-500 animate-pulse' : ''}`} />
+          </Button>
+        </div>
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           
@@ -90,21 +143,40 @@ export function CommandMenu() {
           <CommandSeparator />
           
           <CommandGroup heading="Products">
-            {products.map((product) => (
-              <CommandItem
-                key={product.id}
-                onSelect={() => {
-                  navigate(`/product/${product.id}`);
-                  setOpen(false);
-                }}
-              >
-                <ShoppingBag className="mr-2 h-4 w-4" />
-                <span>{product.name}</span>
-                <span className="ml-auto text-xs text-muted-foreground">
-                  ₹{product.price.toLocaleString('en-IN')}
-                </span>
-              </CommandItem>
-            ))}
+            {products
+              .filter(product => 
+                searchTerm ? 
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) : 
+                true
+              )
+              .slice(0, 5)
+              .map((product) => (
+                <CommandItem
+                  key={product.id}
+                  onSelect={() => {
+                    navigate(`/product/${product.id}`);
+                    setOpen(false);
+                  }}
+                >
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  <span>{product.name}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    ₹{product.price.toLocaleString('en-IN')}
+                  </span>
+                </CommandItem>
+              ))}
+              
+              {searchTerm && (
+                <CommandItem
+                  onSelect={() => {
+                    navigate(`/products?search=${searchTerm}`);
+                    setOpen(false);
+                  }}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  <span>Search all products for "{searchTerm}"</span>
+                </CommandItem>
+              )}
           </CommandGroup>
         </CommandList>
       </CommandDialog>

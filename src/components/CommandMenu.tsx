@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, Tag, Home, Mic } from "lucide-react";
 import { 
@@ -21,6 +21,7 @@ export function CommandMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const recognitionRef = useRef<any>(null);
 
   // Register keyboard shortcut
   useEffect(() => {
@@ -35,9 +36,54 @@ export function CommandMenu() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  // Initialize speech recognition
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      return;
+    }
+    
+    // Initialize speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setSearchTerm(transcript);
+        setIsListening(false);
+        toast({
+          title: "Voice search completed",
+          description: `Searching for "${transcript}"`,
+        });
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        setIsListening(false);
+        toast({
+          title: "Voice search error",
+          description: "There was an error. Please try again.",
+          variant: "destructive",
+        });
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [toast]);
+
   // Handle voice search
   const startVoiceSearch = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    if (!recognitionRef.current) {
       toast({
         title: "Voice search not supported",
         description: "Your browser doesn't support voice recognition.",
@@ -46,25 +92,27 @@ export function CommandMenu() {
       return;
     }
 
-    setIsListening(true);
-    
-    // This is just a mock implementation since actual speech recognition requires browser permissions
-    // In a real implementation, we would use the Web Speech API
-    toast({
-      title: "Listening...",
-      description: "Say what you're looking for.",
-    });
-    
-    // Simulate speech recognition with timeout
-    setTimeout(() => {
-      setIsListening(false);
-      // Mock result
-      setSearchTerm("wireless headphones");
+    try {
+      setIsListening(true);
       toast({
-        title: "Voice search completed",
-        description: "Searching for 'wireless headphones'",
+        title: "Listening...",
+        description: "Say what you're looking for.",
       });
-    }, 2000);
+      recognitionRef.current.start();
+    } catch (error) {
+      setIsListening(false);
+      toast({
+        title: "Voice search error",
+        description: "There was an error starting the voice recognition. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Voice recognition error:", error);
+    }
+  };
+
+  const handleProductSearch = (searchQuery: string) => {
+    navigate(`/products?search=${searchQuery}`);
+    setOpen(false);
   };
 
   return (
@@ -94,6 +142,7 @@ export function CommandMenu() {
             onClick={startVoiceSearch}
             className="mr-2"
             disabled={isListening}
+            aria-label="Search with voice"
           >
             <Mic className={`h-4 w-4 ${isListening ? 'text-red-500 animate-pulse' : ''}`} />
           </Button>
@@ -168,10 +217,7 @@ export function CommandMenu() {
               
               {searchTerm && (
                 <CommandItem
-                  onSelect={() => {
-                    navigate(`/products?search=${searchTerm}`);
-                    setOpen(false);
-                  }}
+                  onSelect={() => handleProductSearch(searchTerm)}
                 >
                   <Search className="mr-2 h-4 w-4" />
                   <span>Search all products for "{searchTerm}"</span>

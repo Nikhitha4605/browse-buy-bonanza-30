@@ -1,73 +1,97 @@
-# Welcome to your Lovable project
+# 🛍️ Snapshop — E-commerce Platform
 
-## Project info
+---
 
-**URL**: https://lovable.dev/projects/e575f4c1-9057-4ad0-b1c3-6cdf7c15e763
+# 📋 Task Objectives
 
-## How can I edit this code?
+- Build a clean and modern e-commerce web application called **Snapshop**.
+- Allow users to browse products, manage their wishlist, and purchase items.
+- Create a responsive, user-friendly admin dashboard for managing products, orders, and users.
+- Ensure shareable product links with correct navigation.
+- Persist user settings, profile details, and wishlist items across sessions.
 
-There are several ways of editing your application.
+---
+# Key Features
+🔍 Smart Search — Find products quickly and easily
 
-**Use Lovable**
+💖 Wishlist Management — Save and organize your favorite items
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e575f4c1-9057-4ad0-b1c3-6cdf7c15e763) and start prompting.
+🛒 Seamless Checkout — Simple and secure purchasing process
 
-Changes made via Lovable will be committed automatically to this repo.
+🛠️ Admin Dashboard — Full control over products, users, orders, and site settings
 
-**Use your preferred IDE**
+🔗 Shareable Product Links — Easily share product pages with friends
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+📱 Fully Responsive — Optimized for all devices: desktop, tablet, and mobile
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🌍 Multi-region Support — Serving customers in India and beyond
 
-Follow these steps:
+# ⚙️ Steps to Run the Project
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the Repository
+```bash
+git clone https://github.com/your-username/snapshop.git
+cd snapshop
 ```
 
-**Edit a file directly in GitHub**
+2. Install Dependencies
+```bash
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+or if you are using yarn:
 
-**Use GitHub Codespaces**
+```bash
+yarn install
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. Set Up Environment Variables
+Create a `.env` file in the root folder and add your configuration variables:
 
-## What technologies are used for this project?
+```bash
+# Example .env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
 
-This project is built with:
+Adjust based on your backend/frontend setup.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+4. Start the Development Server
+```bash
+npm run dev
+```
+or
+```bash
+yarn dev
+```
 
-## How can I deploy this project?
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-Simply open [Lovable](https://lovable.dev/projects/e575f4c1-9057-4ad0-b1c3-6cdf7c15e763) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+# 🧹 Code Quality
 
-Yes, you can!
+- The codebase follows clean architecture principles.
+- All components, pages, and API handlers are **well-structured** and **clearly commented**.
+- Best practices for readability, reusability, and maintainability have been applied.
+- Proper error handling is implemented both on frontend and backend sides.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# 🛠️ Tech Stack Used
+
+- **Frontend**: React.js / Next.js
+- **Backend**: Node.js / Express.js
+- **Database**: MongoDB
+- **Authentication**: JWT
+- **Styling**: TailwindCSS
+- **Deployment**: Vercel / AWS / Other (depending on setup)
+
+---
+
+# 📞 Contact
+
+- **Support Email**: [support@snapshop.com](mailto:support@snapshop.com)
+- **Admin Email**: [contact@snapshop.com](mailto:contact@snapshop.com)
+

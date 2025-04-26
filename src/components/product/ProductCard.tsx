@@ -22,7 +22,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const url = `${window.location.origin}/product/${product.id}`;
+    // Construct the URL with the new format
+    const baseUrl = window.location.origin
+      .replace('browse-buy-bonanza', 'snapshop')
+      .replace('.lovable.app', '');
+    const url = `${baseUrl}/product/${product.id}`;
     
     if (navigator.share) {
       navigator.share({

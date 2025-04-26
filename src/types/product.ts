@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -10,25 +11,15 @@ export interface Product {
   type: string;
 }
 
-export interface Order {
-  id: string;
-  userId: string;
-  items: OrderItem[];
-  total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  shippingAddress: Address;
-  paymentMethod: string;
-  createdAt: string;
-}
-
 export interface OrderItem {
   productId: string;
   name: string;
   price: number;
   quantity: number;
+  imageUrl?: string; // Added for better order display
 }
 
-export interface Address {
+export interface ShippingAddress {
   fullName: string;
   addressLine1: string;
   addressLine2?: string;
@@ -36,4 +27,16 @@ export interface Address {
   state: string;
   postalCode: string;
   country: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: OrderItem[];
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  shippingAddress: ShippingAddress;
+  paymentMethod: string;
+  createdAt: string;
+  deliveryDate?: string; // Added for delivery info
 }

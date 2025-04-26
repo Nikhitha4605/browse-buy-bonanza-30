@@ -1,220 +1,276 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
+import { Heart, ShoppingCart, Share2, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/context/CartContext";
-import { products } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import Layout from "@/components/layout/Layout";
+import { products } from "@/data/mockData";
+import { useCart } from "@/context/CartContext";
+import { toast } from "@/components/ui/sonner";
+import { deliveryEstimate, getDeliveryTimeRange } from "@/utils/deliveryUtils";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const product = products.find((p) => p.id === id);
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [product, setProduct] = useState(products.find((p) => p.id === id));
-  const [relatedProducts, setRelatedProducts] = useState([]);
-
-  useEffect(() => {
-    // Simulate loading
-    setLoading(true);
-    
-    setTimeout(() => {
-      const foundProduct = products.find((p) => p.id === id);
-      setProduct(foundProduct);
-      
-      // Get related products (same category, different product)
-      if (foundProduct) {
-        const related = products
-          .filter(
-            (p) => p.category === foundProduct.category && p.id !== foundProduct.id
-          )
-          .slice(0, 4);
-        setRelatedProducts(related);
-      }
-      
-      setLoading(false);
-    }, 300);
-  }, [id]);
-
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-
-  const increaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
-
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart(product, quantity);
-    }
-  };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-1/2 animate-pulse bg-gray-200 h-96 rounded-lg"></div>
-            <div className="md:w-1/2 space-y-4">
-              <div className="h-8 w-3/4 bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-6 w-1/4 bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-4 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-4 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-4 w-3/4 bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-10 w-full bg-gray-200 animate-pulse rounded mt-4"></div>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const [pincode, setPincode] = useState<string>("");
+  const [deliveryInfo, setDeliveryInfo] = useState<{
+    date: string;
+    minDays: number;
+    maxDays: number;
+  } | null>(null);
 
   if (!product) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <p className="mb-6">The product you're looking for doesn't exist or has been removed.</p>
-          <Button asChild>
-            <Link to="/products">Back to Products</Link>
-          </Button>
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+            <p className="mb-8">
+              The product you're looking for doesn't exist or has been removed.
+            </p>
+            <Button asChild>
+              <Link to="/products">Continue Shopping</Link>
+            </Button>
+          </div>
         </div>
       </Layout>
     );
   }
 
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+  };
+
+  const handlePincodeCheck = () => {
+    if (pincode && pincode.length === 6 && /^\d+$/.test(pincode)) {
+      const date = deliveryEstimate(pincode);
+      const { minDays, maxDays } = getDeliveryTimeRange(pincode);
+      setDeliveryInfo({ date, minDays, maxDays });
+    } else {
+      toast.error("Please enter a valid 6-digit pincode");
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="mb-6 text-sm">
-          <Link to="/" className="text-gray-500 hover:text-brand">
-            Home
-          </Link>{" "}
-          /{" "}
-          <Link to="/products" className="text-gray-500 hover:text-brand">
-            Products
-          </Link>{" "}
-          /{" "}
-          <Link
-            to={`/products?category=${product.category}`}
-            className="text-gray-500 hover:text-brand capitalize"
-          >
-            {product.category}
-          </Link>{" "}
-          / <span className="text-gray-900">{product.name}</span>
-        </div>
-
-        {/* Product Detail */}
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Product Image */}
-          <div className="md:w-1/2">
-            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Product Images */}
+          <div className="lg:w-1/2">
+            <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-md">
               <img
                 src={product.imageUrl}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-auto object-cover aspect-square"
               />
+            </div>
+            <div className="grid grid-cols-4 gap-4 mt-4">
+              <div className="bg-white rounded border border-gray-200 p-2 cursor-pointer hover:border-brand">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-auto object-cover aspect-square"
+                />
+              </div>
+              <div className="bg-white rounded border border-gray-200 p-2 cursor-pointer hover:border-brand">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-auto object-cover aspect-square"
+                />
+              </div>
+              <div className="bg-white rounded border border-gray-200 p-2 cursor-pointer hover:border-brand">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-auto object-cover aspect-square"
+                />
+              </div>
+              <div className="bg-white rounded border border-gray-200 p-2 cursor-pointer hover:border-brand">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-auto object-cover aspect-square"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Product Info */}
-          <div className="md:w-1/2">
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-2xl text-brand font-semibold mb-4">
-              ${product.price.toFixed(2)}
-            </p>
-            <div className="mb-6">
-              {product.inStock ? (
-                <Badge className="bg-green-600">In Stock</Badge>
-              ) : (
-                <Badge variant="destructive">Out of Stock</Badge>
-              )}
+          {/* Product Details */}
+          <div className="lg:w-1/2 space-y-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                {product.name}
+              </h1>
+              <div className="mt-2 space-x-2">
+                <Badge variant="outline" className="capitalize bg-gray-100">
+                  {product.category}
+                </Badge>
+                <Badge variant="outline" className="capitalize bg-gray-100">
+                  {product.type}
+                </Badge>
+              </div>
             </div>
-            <div className="prose max-w-none mb-6">
-              <p className="text-gray-700">{product.description}</p>
+
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                ₹{product.price.toLocaleString("en-IN")}
+              </h2>
+              <p className="text-sm text-green-600 mt-1">
+                Free shipping on orders over ₹500
+              </p>
             </div>
-            <div className="border-t border-gray-200 pt-6">
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                  Quantity
-                </label>
-                <div className="flex items-center">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={decreaseQuantity}
-                    disabled={quantity === 1 || !product.inStock}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-12 text-center">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={increaseQuantity}
-                    disabled={!product.inStock}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="w-20">
+                <Select
+                  value={quantity.toString()}
+                  onValueChange={(value) => setQuantity(Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Qty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <Button
-                className="w-full bg-brand hover:bg-brand/90"
-                size="lg"
-                onClick={handleAddToCart}
+                className="flex-grow bg-brand hover:bg-brand/90 font-semibold"
                 disabled={!product.inStock}
+                onClick={handleAddToCart}
               >
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                {product.inStock ? "Add to Cart" : "Out of Stock"}
+              </Button>
+              <Button variant="outline" size="icon">
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button variant="outline" size="icon">
+                <Share2 className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Additional Info */}
-            <div className="mt-8">
-              <h3 className="font-semibold mb-2">Product Details</h3>
-              <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                <li>Category: <span className="capitalize">{product.category}</span></li>
-                <li>Free shipping on orders over $50</li>
-                <li>30-day money-back guarantee</li>
-                <li>1-year warranty included</li>
+            <div className="border-t border-gray-200 pt-4">
+              <h3 className="font-medium text-gray-900">Description</h3>
+              <p className="mt-2 text-gray-600">{product.description}</p>
+            </div>
+
+            <div className="border-t border-gray-200 pt-4">
+              <h3 className="font-medium text-gray-900">Delivery</h3>
+              <div className="mt-2">
+                <div className="flex items-center space-x-2">
+                  <Truck className="h-5 w-5 text-brand" />
+                  <span className="text-sm text-gray-600">
+                    Free delivery available
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter pincode"
+                    className="w-full sm:w-40"
+                    maxLength={6}
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePincodeCheck}
+                  >
+                    Check
+                  </Button>
+                </div>
+
+                {deliveryInfo ? (
+                  <div className="mt-2 text-green-600 text-sm">
+                    <p className="flex items-center">
+                      <Truck className="h-4 w-4 mr-1" />
+                      Delivery by {deliveryInfo.date}
+                    </p>
+                    <p className="text-gray-600 mt-1 text-xs">
+                      (Typically {deliveryInfo.minDays}-{deliveryInfo.maxDays}{" "}
+                      business days)
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Enter pincode to check delivery timeframes
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-4">
+              <h3 className="font-medium text-gray-900">Key Features</h3>
+              <ul className="mt-2 space-y-1 list-disc pl-5 text-gray-600">
+                <li>Premium quality materials</li>
+                <li>Durable construction for long-term use</li>
+                <li>Modern, stylish design</li>
+                <li>Easy maintenance</li>
               </ul>
+            </div>
+
+            <div className="md:hidden py-4">
+              <Button 
+                className="w-full bg-brand hover:bg-brand/90 font-semibold"
+                onClick={() => window.scrollTo(0, document.body.scrollHeight)}
+              >
+                See Product Reviews
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Related Products</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {relatedProducts.map((relatedProduct) => (
-                <div key={relatedProduct.id} className="group">
-                  <Link to={`/product/${relatedProduct.id}`}>
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-3">
-                      <img
-                        src={relatedProduct.imageUrl}
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <h3 className="font-medium text-gray-900">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-brand font-semibold">
-                      ${relatedProduct.price.toFixed(2)}
-                    </p>
-                  </Link>
-                </div>
-              ))}
+        {/* Product Reviews Section */}
+        <div className="mt-12 border-t border-gray-200 pt-8">
+          <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex justify-between mb-2">
+                <div className="font-medium">Jane Doe</div>
+                <div className="text-yellow-400">★★★★★</div>
+              </div>
+              <p className="text-gray-600">
+                This product exceeded my expectations. The quality is excellent
+                and it arrived earlier than expected. I would definitely
+                recommend it to others.
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex justify-between mb-2">
+                <div className="font-medium">John Smith</div>
+                <div className="text-yellow-400">★★★★☆</div>
+              </div>
+              <p className="text-gray-600">
+                Great product for the price. It does exactly what it's supposed
+                to do. The only reason I didn't give it 5 stars is because the
+                color was slightly different than expected.
+              </p>
             </div>
           </div>
-        )}
+
+          <div className="mt-8 text-center">
+            <Button variant="outline">Load More Reviews</Button>
+          </div>
+        </div>
       </div>
     </Layout>
   );

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -109,6 +110,14 @@ const Footer = () => {
                 <Link to="/faq" className="hover:text-white">
                   FAQ
                 </Link>
+              </li>
+              <li>
+                <a href="mailto:support@snapshop.com" className="hover:text-white">
+                  support@snapshop.com
+                </a>
+              </li>
+              <li className="pt-2 text-sm">
+                123 Commerce Street, Mumbai, 400001, India
               </li>
             </ul>
           </div>

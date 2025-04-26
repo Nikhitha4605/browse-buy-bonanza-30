@@ -1,113 +1,171 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
-import { orders } from "@/data/mockData";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Package, ShoppingBag } from "lucide-react";
 
 const OrdersPage = () => {
-  const { user } = useAuth();
-  
-  // Filter orders for the current user
-  const userOrders = orders.filter((order) => order.userId === user?.id);
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  const getBadgeVariant = (status) => {
+  // Redirect to login if not authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login?redirect=/orders");
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated || !user) {
+    return null; // Will redirect in the useEffect
+  }
+
+  const getOrderStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return "default";
       case "processing":
-        return "secondary";
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            Processing
+          </Badge>
+        );
       case "shipped":
-        return "secondary"; // Changed from "primary" to "secondary"
+        return (
+          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+            Shipped
+          </Badge>
+        );
       case "delivered":
-        return "outline";
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            Delivered
+          </Badge>
+        );
       case "cancelled":
-        return "destructive";
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            Cancelled
+          </Badge>
+        );
       default:
-        return "default";
+        return (
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+            Pending
+          </Badge>
+        );
     }
   };
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">My Orders</h1>
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
 
-        {userOrders.length > 0 ? (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Order ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Items
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {userOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        #{order.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${order.total.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={getBadgeVariant(order.status)} className="capitalize">
-                          {order.status}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {order.items.length} {order.items.length === 1 ? "item" : "items"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <Link
-                          to={`/orders/${order.id}`}
-                          className="text-brand hover:text-brand/70"
+          {user.orders && user.orders.length > 0 ? (
+            <div className="space-y-6">
+              {user.orders.map((order) => (
+                <div
+                  key={order.id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
+                >
+                  <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div>
+                      <p className="text-sm text-gray-500">Order placed</p>
+                      <p className="font-medium">
+                        {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <div className="mt-2 sm:mt-0">
+                      <p className="text-sm text-gray-500">Order ID</p>
+                      <p className="font-medium">#{order.id}</p>
+                    </div>
+                    <div className="mt-2 sm:mt-0">
+                      <p className="text-sm text-gray-500">Total</p>
+                      <p className="font-medium">
+                        ₹{order.total.toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                    <div className="mt-2 sm:mt-0 self-start sm:self-center">
+                      {getOrderStatusBadge(order.status)}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="font-medium mb-4">Items</h3>
+                    <div className="space-y-4">
+                      {order.items.map((item) => (
+                        <div
+                          key={item.productId}
+                          className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-gray-100 pb-4"
                         >
-                          View Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          <div className="w-20 h-20 bg-gray-100 rounded">
+                            {/* If we had the image URL in the order data */}
+                            {item.imageUrl && (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            {!item.imageUrl && (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <Package className="h-8 w-8" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-grow">
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-gray-500">
+                              Quantity: {item.quantity}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium">
+                              ₹{item.price.toLocaleString("en-IN")}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between mt-6">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to={`/orders/${order.id}`}>View Details</Link>
+                      </Button>
+                      {order.status !== "delivered" &&
+                        order.status !== "cancelled" && (
+                          <Button variant="ghost" size="sm">
+                            Track Order
+                          </Button>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <h2 className="text-xl font-semibold mb-2">No Orders Found</h2>
-            <p className="text-gray-600 mb-6">
-              You haven't placed any orders yet.
-            </p>
-            <Link
-              to="/products"
-              className="inline-flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-brand hover:bg-brand/90"
-            >
-              Start Shopping
-            </Link>
-          </div>
-        )}
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <div className="flex flex-col items-center">
+                <ShoppingBag className="h-16 w-16 text-gray-300 mb-4" />
+                <h2 className="text-xl font-medium mb-2">No orders yet</h2>
+                <p className="text-gray-500 mb-6">
+                  You haven't placed any orders yet. Start shopping to see your
+                  order history here.
+                </p>
+                <Button asChild>
+                  <Link to="/products">Start Shopping</Link>
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

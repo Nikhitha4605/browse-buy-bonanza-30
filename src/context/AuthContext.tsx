@@ -1,12 +1,14 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { toast } from "@/components/ui/sonner";
+import { Order } from "@/types/product";
 
 interface User {
   id: string;
   email: string;
   name: string;
   role: 'user' | 'admin';
+  orders: Order[];
 }
 
 interface AuthContextType {
@@ -16,6 +18,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  addOrderToHistory: (order: Order) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,8 +33,8 @@ export const useAuth = () => {
 
 // Mock user data
 const MOCK_USERS = [
-  { id: '1', email: 'user@example.com', password: 'password', name: 'Regular User', role: 'user' as const },
-  { id: '2', email: 'admin@example.com', password: 'admin', name: 'Admin User', role: 'admin' as const },
+  { id: '1', email: 'user@example.com', password: 'password', name: 'Regular User', role: 'user' as const, orders: [] },
+  { id: '2', email: 'admin@example.com', password: 'admin', name: 'Admin User', role: 'admin' as const, orders: [] },
 ];
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -40,6 +43,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+  const saveUserToStorage = useCallback((userData: User) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+  }, []);
+
   const login = async (email: string, password: string) => {
     try {
       // Simulate API call
@@ -47,8 +54,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (foundUser) {
         const { password, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        
+        // Initialize orders array if it doesn't exist
+        const userWithOrders = {
+          ...userWithoutPassword,
+          orders: userWithoutPassword.orders || []
+        };
+        
+        setUser(userWithOrders);
+        saveUserToStorage(userWithOrders);
         toast.success("Logged in successfully!");
         return true;
       } else {
@@ -78,11 +92,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: `${MOCK_USERS.length + 1}`,
         email,
         name,
-        role: 'user' as const
+        role: 'user' as const,
+        orders: []
       };
       
       setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      saveUserToStorage(newUser);
       toast.success("Registration successful!");
       return true;
     } catch (error) {
@@ -96,6 +111,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('user');
     toast.info("Logged out successfully");
   };
+  
+  const addOrderToHistory = useCallback((order: Order) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      orders: [...(user.orders || []), order]
+    };
+    
+    setUser(updatedUser);
+    saveUserToStorage(updatedUser);
+    toast.success("Order added to your history");
+  }, [user, saveUserToStorage]);
 
   const value = {
     user,
@@ -103,7 +131,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     register,
     logout,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin'
+    isAdmin: user?.role === 'admin',
+    addOrderToHistory
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

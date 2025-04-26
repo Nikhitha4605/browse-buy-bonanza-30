@@ -1,11 +1,12 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { Badge } from "@/components/ui/badge";
+import { deliveryEstimate } from "@/utils/deliveryUtils";
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const deliveryDate = deliveryEstimate();
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-lg">
@@ -45,6 +47,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <span className="ml-2 capitalize">{product.type}</span>
             </div>
           </div>
+          {product.inStock && (
+            <div className="mt-2 flex items-center text-green-600 text-sm">
+              <Truck className="h-4 w-4 mr-1" />
+              <span>Get it by {deliveryDate}</span>
+            </div>
+          )}
         </div>
       </Link>
       <div className="px-4 pb-4">

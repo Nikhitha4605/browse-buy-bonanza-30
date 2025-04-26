@@ -1,145 +1,373 @@
 
-import React, { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, ShoppingBag } from "lucide-react";
-import { useVoiceSearch } from "@/hooks/use-voice-search";
-import { products } from "@/data/mockData";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/ui/card";
+import Layout from "@/components/layout/Layout";
+import { Mic, MicOff, Volume2, MessageCircle, ArrowRight } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
+import { products, categories } from "@/data/mockData";
+
+interface VoiceCommandResult {
+  type: 'search' | 'navigate' | 'info' | 'unknown';
+  data?: string;
+  response: string;
+}
 
 const VoiceAssistantPage = () => {
-  const [transcript, setTranscript] = useState("");
-  const [matchingProducts, setMatchingProducts] = useState<any[]>([]);
-  const { isListening, initializeVoiceSearch, startVoiceSearch } = useVoiceSearch();
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<{type: 'user' | 'assistant', text: string}[]>([
+    { type: 'assistant', text: 'Hello! I\'m your SnapShop voice assistant. How can I help you today?' }
+  ]);
+  const [supported, setSupported] = useState(true);
+  
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const synthesisRef = useRef<SpeechSynthesis | null>(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Initialize speech recognition and synthesis
   useEffect(() => {
-    initializeVoiceSearch(handleTranscript);
+    // Check for SpeechRecognition support
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      setSupported(false);
+      toast.error("Voice recognition is not supported in your browser");
+      return;
+    }
+    
+    // Initialize speech recognition
+    recognitionRef.current = new SpeechRecognitionAPI();
+    recognitionRef.current.continuous = false;
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.lang = 'en-US';
+    
+    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      const transcriptResult = event.results[0][0].transcript;
+      setTranscript(transcriptResult);
+      handleUserInput(transcriptResult);
+      setIsListening(false);
+    };
+    
+    recognitionRef.current.onerror = (event) => {
+      console.error('Speech recognition error:', event);
+      setIsListening(false);
+      toast.error("Voice recognition error. Please try again.");
+    };
+    
+    recognitionRef.current.onend = () => {
+      setIsListening(false);
+    };
+    
+    // Initialize speech synthesis
+    if ('speechSynthesis' in window) {
+      synthesisRef.current = window.speechSynthesis;
+    } else {
+      toast.warning("Text-to-speech is not supported in your browser");
+    }
+    
+    // Cleanup function
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+      if (synthesisRef.current) {
+        synthesisRef.current.cancel();
+      }
+    };
   }, []);
 
-  const handleTranscript = (text: string) => {
-    setTranscript(text);
+  // Scroll to bottom of conversation when it updates
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversationHistory]);
+
+  const startListening = () => {
+    if (!supported) {
+      toast.error("Voice recognition is not supported in your browser");
+      return;
+    }
     
-    // Simple product matching based on transcript
-    const matches = products.filter(product => 
-      product.name.toLowerCase().includes(text.toLowerCase()) ||
-      product.category.toLowerCase().includes(text.toLowerCase())
-    );
-    
-    setMatchingProducts(matches.slice(0, 5));
-    
-    if (matches.length > 0) {
-      toast({
-        title: "Products found!",
-        description: `Found ${matches.length} products matching "${text}"`,
-      });
-    } else {
-      toast({
-        title: "No products found",
-        description: `No products match "${text}". Try different keywords.`,
-        variant: "destructive",
-      });
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast.info("I'm listening...");
+      }
+    } catch (error) {
+      console.error("Error starting voice recognition:", error);
+      setIsListening(false);
+      toast.error("Could not start voice recognition");
     }
   };
 
-  const handleProductClick = (productId: string) => {
-    navigate(`/product/${productId}`);
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
   };
-  
+
+  const speak = (text: string) => {
+    if (synthesisRef.current) {
+      synthesisRef.current.cancel(); // Stop any current speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.1;
+      synthesisRef.current.speak(utterance);
+    }
+  };
+
+  const handleUserInput = (input: string) => {
+    // Add user message to conversation
+    setConversationHistory(prev => [...prev, { type: 'user', text: input }]);
+    
+    // Process the command
+    const result = processVoiceCommand(input);
+    
+    // Add assistant response to conversation
+    setConversationHistory(prev => [...prev, { type: 'assistant', text: result.response }]);
+    
+    // Speak the response
+    speak(result.response);
+    
+    // Handle navigation if needed
+    if (result.type === 'navigate' && result.data) {
+      setTimeout(() => {
+        navigate(result.data as string);
+      }, 1500);
+    }
+    
+    // Handle search if needed
+    if (result.type === 'search' && result.data) {
+      setTimeout(() => {
+        navigate(`/products?search=${encodeURIComponent(result.data as string)}`);
+      }, 1500);
+    }
+  };
+
+  const processVoiceCommand = (command: string): VoiceCommandResult => {
+    const lowerCommand = command.toLowerCase();
+    
+    // Search for products
+    if (lowerCommand.includes('search for') || lowerCommand.includes('find') || lowerCommand.includes('show me')) {
+      const searchTerms = lowerCommand.replace(/search for|find|show me/gi, '').trim();
+      return {
+        type: 'search',
+        data: searchTerms,
+        response: `Searching for ${searchTerms}. Here are the results.`
+      };
+    }
+    
+    // Navigation commands
+    if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('navigate to')) {
+      // Home page
+      if (lowerCommand.includes('home')) {
+        return {
+          type: 'navigate',
+          data: '/',
+          response: 'Taking you to the home page.'
+        };
+      }
+      
+      // Products page
+      if (lowerCommand.includes('products') || lowerCommand.includes('shop')) {
+        return {
+          type: 'navigate',
+          data: '/products',
+          response: 'Opening the products page.'
+        };
+      }
+      
+      // Cart page
+      if (lowerCommand.includes('cart') || lowerCommand.includes('shopping cart')) {
+        return {
+          type: 'navigate',
+          data: '/cart',
+          response: 'Opening your shopping cart.'
+        };
+      }
+      
+      // Categories
+      for (const category of categories) {
+        if (lowerCommand.includes(category.toLowerCase())) {
+          return {
+            type: 'navigate',
+            data: `/products?category=${category}`,
+            response: `Showing you our ${category} collection.`
+          };
+        }
+      }
+      
+      // Generic navigation attempt
+      const destination = lowerCommand.replace(/go to|open|navigate to/gi, '').trim();
+      return {
+        type: 'navigate',
+        data: `/${destination}`,
+        response: `I'll try to take you to ${destination}.`
+      };
+    }
+    
+    // Product information queries
+    if (lowerCommand.includes('tell me about') || lowerCommand.includes('what is') || lowerCommand.includes('information on')) {
+      const productQuery = lowerCommand.replace(/tell me about|what is|information on/gi, '').trim();
+      
+      // Try to find a matching product
+      const matchedProduct = products.find(p => 
+        p.name.toLowerCase().includes(productQuery) || 
+        p.description.toLowerCase().includes(productQuery)
+      );
+      
+      if (matchedProduct) {
+        return {
+          type: 'info',
+          data: matchedProduct.id,
+          response: `${matchedProduct.name} is priced at ₹${matchedProduct.price.toLocaleString('en-IN')}. ${matchedProduct.description}`
+        };
+      }
+    }
+    
+    // Help command
+    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+      return {
+        type: 'info',
+        response: 'I can help you search for products, navigate to different pages, or provide information about items. Try saying "search for headphones", "go to cart", or "tell me about sneakers".'
+      };
+    }
+    
+    // Greetings
+    if (lowerCommand.includes('hello') || lowerCommand.includes('hi') || lowerCommand.includes('hey')) {
+      return {
+        type: 'info',
+        response: 'Hello! How can I help you with your shopping today?'
+      };
+    }
+
+    // Unknown command
+    return {
+      type: 'unknown',
+      response: "I'm not sure what you're asking. Try asking to search for products, navigate to a page, or get information about an item."
+    };
+  };
+
+  const handleTextSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (transcript.trim()) {
+      handleUserInput(transcript);
+      setTranscript('');
+    }
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8">Voice Shopping Assistant</h1>
-        
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-8 rounded-lg shadow-sm mb-10">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center mb-6 relative">
-              {isListening ? (
-                <div className="absolute inset-0 rounded-full border-4 border-white animate-pulse"></div>
-              ) : null}
-              {isListening ? (
-                <Mic className="h-12 w-12 text-white animate-pulse" />
-              ) : (
-                <Mic className="h-12 w-12 text-white" />
-              )}
-            </div>
-            
-            <Button
-              size="lg"
-              onClick={startVoiceSearch}
-              disabled={isListening}
-              className={`${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-brand hover:bg-brand/90'} text-white px-6 py-6 rounded-lg text-lg mb-4 h-auto`}
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="mr-2 h-6 w-6" /> Listening...
-                </>
-              ) : (
-                <>
-                  <Mic className="mr-2 h-6 w-6" /> Tap to Speak
-                </>
-              )}
-            </Button>
-            
-            <p className="text-gray-500 mb-4">
-              {isListening 
-                ? "I'm listening... Speak clearly." 
-                : "Try saying something like \"Show me red shirts\" or \"Find coffee tables\""}
-            </p>
-            
-            {transcript && (
-              <div className="bg-white p-4 rounded-lg shadow-sm w-full max-w-lg">
-                <p className="font-medium text-gray-700 mb-1">You said:</p>
-                <p className="text-gray-900 italic">"{transcript}"</p>
-              </div>
-            )}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">Voice Shopping Assistant</h1>
           </div>
           
-          {matchingProducts.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-xl font-bold mb-4">Matching Products</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {matchingProducts.map(product => (
+          <Card className="mb-6">
+            <div className="p-4 h-[500px] flex flex-col">
+              <div className="flex-grow overflow-y-auto mb-4 space-y-4 p-2">
+                {conversationHistory.map((message, index) => (
                   <div 
-                    key={product.id}
-                    className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleProductClick(product.id)}
+                    key={index}
+                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="font-medium mb-1">{product.name}</div>
-                    <div className="text-sm text-gray-500 mb-2">{product.category}</div>
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-purple-700">₹{product.price.toLocaleString('en-IN')}</span>
-                      <Button size="sm" variant="outline">
-                        <ShoppingBag className="h-4 w-4 mr-1" /> View
-                      </Button>
+                    <div 
+                      className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                        message.type === 'user' 
+                          ? 'bg-brand text-white rounded-tr-none' 
+                          : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                      }`}
+                    >
+                      {message.text}
                     </div>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
+              </div>
+              
+              {/* Input area */}
+              <div className="border-t pt-4">
+                <form onSubmit={handleTextSubmit} className="flex gap-2">
+                  <div className="relative flex-grow">
+                    <input
+                      type="text"
+                      className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                      placeholder="Type a message or press the mic to speak..."
+                      value={transcript}
+                      onChange={(e) => setTranscript(e.target.value)}
+                    />
+                    <MessageCircle className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  </div>
+                  
+                  <Button 
+                    type="button" 
+                    variant={isListening ? "destructive" : "default"}
+                    size="icon"
+                    className={isListening ? "" : "bg-brand hover:bg-brand/90"}
+                    onClick={isListening ? stopListening : startListening}
+                    disabled={!supported}
+                  >
+                    {isListening ? (
+                      <MicOff className="h-5 w-5" />
+                    ) : (
+                      <Mic className="h-5 w-5" />
+                    )}
+                  </Button>
+                  
+                  <Button type="submit" size="icon" disabled={!transcript.trim()}>
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </form>
               </div>
             </div>
-          )}
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-bold mb-4">Voice Commands You Can Try</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium mb-2">Product Search</h3>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
-                <li>"Show me black shoes"</li>
-                <li>"Find kitchen appliances"</li>
-                <li>"Search for headphones"</li>
-              </ul>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium mb-2">Shopping Actions</h3>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
-                <li>"Add this to my cart"</li>
-                <li>"Show my shopping cart"</li>
-                <li>"Check out now"</li>
-              </ul>
+          </Card>
+          
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="font-medium text-lg mb-4">Things you can ask:</h2>
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <div className="bg-brand/10 rounded-full p-2 text-brand">
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-gray-800">"Search for wireless headphones"</p>
+                  <p className="text-gray-500 text-sm">Find products in our catalog</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <div className="bg-brand/10 rounded-full p-2 text-brand">
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-gray-800">"Go to my shopping cart"</p>
+                  <p className="text-gray-500 text-sm">Navigate to different pages</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <div className="bg-brand/10 rounded-full p-2 text-brand">
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-gray-800">"Tell me about the latest electronics"</p>
+                  <p className="text-gray-500 text-sm">Get product information</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <div className="bg-brand/10 rounded-full p-2 text-brand">
+                  <Volume2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-gray-800">The assistant will speak responses to you</p>
+                  <p className="text-gray-500 text-sm">Make sure your volume is on</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

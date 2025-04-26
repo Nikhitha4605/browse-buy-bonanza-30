@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Truck, Share2 } from "lucide-react";
@@ -22,11 +21,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Construct the URL with the new format
-    const baseUrl = window.location.origin
-      .replace('browse-buy-bonanza', 'snapshop')
-      .replace('.lovable.app', '');
-    const url = `${baseUrl}/product/${product.id}`;
+    // Use the current window location to construct the full URL
+    const url = `${window.location.protocol}//${window.location.host}/product/${product.id}`;
     
     if (navigator.share) {
       navigator.share({

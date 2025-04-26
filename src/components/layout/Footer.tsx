@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { FacebookIcon, InstagramIcon, TwitterIcon } from "lucide-react";
@@ -9,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold text-xl mb-4 text-white">BrowseBuy</h3>
+            <h3 className="font-bold text-xl mb-4 text-white">SnapShop</h3>
             <p className="text-gray-400 mb-4">
               Your one-stop destination for all your shopping needs. Quality products, 
               great prices, and exceptional service.
@@ -111,15 +110,15 @@ const Footer = () => {
               <p className="mb-2">Mumbai, Maharashtra</p>
               <p className="mb-2">400001, India</p>
               <p className="mb-2">Phone: +91 1234567890</p>
-              <p className="mb-2">Email: <a href="mailto:support@browsebuy.com" className="hover:text-white transition-colors">support@browsebuy.com</a></p>
+              <p className="mb-2">Email: <a href="mailto:support@snapshop.com" className="hover:text-white transition-colors">support@snapshop.com</a></p>
             </address>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 text-sm text-gray-400 text-center">
-          <p>&copy; {new Date().getFullYear()} BrowseBuy. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SnapShop. All rights reserved.</p>
           <p className="mt-1">
-            Designed and developed by the BrowseBuy team.
+            Designed and developed by the SnapShop team.
           </p>
         </div>
       </div>

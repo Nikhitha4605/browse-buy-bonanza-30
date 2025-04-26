@@ -9,7 +9,7 @@ import { toast } from "@/components/ui/sonner";
 const StoreSettings = () => {
   const [storeSettings, setStoreSettings] = useState({
     storeName: "SnapShop",
-    email: "contact@example.com",
+    email: "contact@snapshop.com",
     phone: "+1 123-456-7890",
     address: "123 E-Commerce St, Online City, 12345",
   });

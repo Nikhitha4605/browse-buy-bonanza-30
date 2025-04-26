@@ -39,4 +39,9 @@ export interface Order {
   paymentMethod: string;
   createdAt: string;
   deliveryDate?: string; // Added for delivery info
+  processed?: boolean; // To prevent duplicate orders
+}
+
+export interface WishlistItem extends Product {
+  addedAt: string;
 }

@@ -24,11 +24,12 @@ const CheckoutPage = () => {
     city: "",
     state: "",
     postalCode: "",
-    country: "India",
+    country: "India", // Changed from "United States" to "India"
   });
 
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
   const [sameAsBilling, setSameAsBilling] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Calculate shipping and tax
   const shipping = subtotal > 500 ? 0 : 100;
@@ -46,6 +47,11 @@ const CheckoutPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Prevent multiple submissions
+    if (isProcessing) {
+      return;
+    }
+
     // Validate shipping info
     const requiredFields = ["fullName", "addressLine1", "city", "state", "postalCode"];
     const missingFields = requiredFields.filter((field) => !shippingAddress[field as keyof typeof shippingAddress]);
@@ -59,6 +65,8 @@ const CheckoutPage = () => {
       toast.error("Your cart is empty");
       return;
     }
+
+    setIsProcessing(true);
 
     // Create order info
     const orderDetails = {
@@ -87,8 +95,17 @@ const CheckoutPage = () => {
     // In a real app, we would send this to the server
     console.log("Order placed:", orderDetails);
 
-    // Navigate to confirmation page with order details
-    navigate("/order-confirmation", { state: { orderDetails } });
+    // Simulate API call with slight delay
+    setTimeout(() => {
+      // Clear the cart after successful order
+      clearCart();
+      
+      // Navigate to confirmation page with order details
+      navigate("/order-confirmation", { state: { orderDetails } });
+      
+      // Reset processing state
+      setIsProcessing(false);
+    }, 1000);
   };
 
   if (cart.length === 0) {
@@ -360,8 +377,12 @@ const CheckoutPage = () => {
                       </a>
                       .
                     </p>
-                    <Button type="submit" className="w-full bg-brand hover:bg-brand/90">
-                      Place Order
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-brand hover:bg-brand/90"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? "Processing..." : "Place Order"}
                     </Button>
                   </div>
                 </div>

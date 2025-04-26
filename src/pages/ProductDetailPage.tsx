@@ -29,6 +29,7 @@ const ProductDetailPage = () => {
     minDays: number;
     maxDays: number;
   } | null>(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   if (!product) {
     return (
@@ -48,6 +49,11 @@ const ProductDetailPage = () => {
     );
   }
 
+  // Get related products based on category and type
+  const relatedProducts = products.filter(
+    (p) => (p.category === product.category || p.type === product.type) && p.id !== product.id
+  ).slice(0, 4);
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
   };
@@ -61,6 +67,49 @@ const ProductDetailPage = () => {
       toast.error("Please enter a valid 6-digit pincode");
     }
   };
+
+  const toggleWishlist = () => {
+    setIsWishlisted(!isWishlisted);
+    if (!isWishlisted) {
+      // Save to wishlist
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if (!wishlist.some((item: {id: string}) => item.id === product.id)) {
+        wishlist.push(product);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        toast.success(`${product.name} added to your wishlist`);
+      }
+    } else {
+      // Remove from wishlist
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const updatedWishlist = wishlist.filter((item: {id: string}) => item.id !== product.id);
+      localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+      toast.info(`${product.name} removed from your wishlist`);
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: `Check out this amazing product: ${product.name}`,
+        url: window.location.href,
+      })
+      .then(() => toast.success("Shared successfully!"))
+      .catch((error) => console.error("Error sharing:", error));
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => toast.success("Product link copied to clipboard!"))
+        .catch((error) => console.error("Error copying:", error));
+    }
+  };
+
+  // Check if product is in wishlist on component mount
+  React.useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const isInWishlist = wishlist.some((item: {id: string}) => item.id === product.id);
+    setIsWishlisted(isInWishlist);
+  }, [product.id]);
 
   return (
     <Layout>
@@ -158,10 +207,15 @@ const ProductDetailPage = () => {
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 {product.inStock ? "Add to Cart" : "Out of Stock"}
               </Button>
-              <Button variant="outline" size="icon">
-                <Heart className="h-5 w-5" />
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={toggleWishlist}
+                className={isWishlisted ? "text-red-500 hover:text-red-600 hover:bg-red-50" : ""}
+              >
+                <Heart className={`h-5 w-5 ${isWishlisted ? "fill-red-500" : ""}`} />
               </Button>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" onClick={handleShare}>
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
@@ -236,6 +290,38 @@ const ProductDetailPage = () => {
                 See Product Reviews
               </Button>
             </div>
+          </div>
+        </div>
+
+        {/* Related Products Section */}
+        <div className="mt-16 border-t border-gray-200 pt-8">
+          <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map(relatedProduct => (
+              <div key={relatedProduct.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <Link to={`/product/${relatedProduct.id}`}>
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={relatedProduct.imageUrl}
+                      alt={relatedProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-1 truncate">{relatedProduct.name}</h3>
+                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                      {relatedProduct.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold">₹{relatedProduct.price.toLocaleString('en-IN')}</span>
+                      <Badge variant={relatedProduct.inStock ? "outline" : "destructive"}>
+                        {relatedProduct.inStock ? "In Stock" : "Out of Stock"}
+                      </Badge>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -23,6 +23,13 @@ const OrdersPage = () => {
     return null; // Will redirect in the useEffect
   }
 
+  // Ensure we have unique orders by filtering duplicates based on order ID
+  const uniqueOrders = user.orders 
+    ? user.orders.filter((order, index, self) => 
+        index === self.findIndex(o => o.id === order.id)
+      )
+    : [];
+
   const getOrderStatusBadge = (status: string) => {
     switch (status) {
       case "processing":
@@ -64,9 +71,9 @@ const OrdersPage = () => {
         <div className="max-w-5xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
 
-          {user.orders && user.orders.length > 0 ? (
+          {uniqueOrders && uniqueOrders.length > 0 ? (
             <div className="space-y-6">
-              {user.orders.map((order) => (
+              {uniqueOrders.map((order) => (
                 <div
                   key={order.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
@@ -106,7 +113,6 @@ const OrdersPage = () => {
                           className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-gray-100 pb-4"
                         >
                           <div className="w-20 h-20 bg-gray-100 rounded">
-                            {/* If we had the image URL in the order data */}
                             {item.imageUrl && (
                               <img
                                 src={item.imageUrl}

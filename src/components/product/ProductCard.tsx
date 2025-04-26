@@ -1,12 +1,14 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Truck } from "lucide-react";
+import { ShoppingCart, Truck, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { Badge } from "@/components/ui/badge";
 import { deliveryEstimate } from "@/utils/deliveryUtils";
+import { toast } from "@/components/ui/sonner";
+import WishlistButton from "./WishlistButton";
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +17,28 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const deliveryDate = deliveryEstimate();
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const url = `${window.location.origin}/product/${product.id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: `Check out this amazing product: ${product.name}`,
+        url: url,
+      })
+      .then(() => toast.success("Shared successfully!"))
+      .catch((error) => console.error("Error sharing:", error));
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(url)
+        .then(() => toast.success("Product link copied to clipboard!"))
+        .catch((error) => console.error("Error copying:", error));
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-lg">
@@ -30,6 +54,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <Badge variant="destructive">Out of Stock</Badge>
             </div>
           )}
+          <div className="absolute top-0 right-0 m-2 flex gap-2">
+            <WishlistButton product={product} size="sm" />
+            <Button variant="outline" size="sm" onClick={handleShare}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <div className="p-4">
           <h3 className="font-semibold text-lg mb-1 text-gray-800 line-clamp-1">

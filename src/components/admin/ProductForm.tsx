@@ -33,6 +33,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
     color: colors[0],
     type: types[0]
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (product) {
@@ -46,6 +48,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
         color: product.color,
         type: product.type
       });
+      setImagePreview(product.imageUrl);
     }
   }, [product]);
 
@@ -55,6 +58,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
       ...prev,
       [name]: name === 'price' ? parseFloat(value) : value
     }));
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -71,12 +82,50 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
     }));
   };
 
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: value
+    }));
+    if (value) {
+      setImagePreview(value);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = "Product name is required";
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    
+    if (!formData.imageUrl.trim()) {
+      newErrors.imageUrl = "Image URL is required";
+    } else if (!formData.imageUrl.match(/^(https?:\/\/)/i)) {
+      newErrors.imageUrl = "Please enter a valid URL starting with http:// or https://";
+    }
+    
+    if (formData.price <= 0) {
+      newErrors.price = "Price must be greater than 0";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.name || !formData.description || !formData.imageUrl || formData.price <= 0) {
-      toast.error("Please fill in all required fields");
+    if (!validateForm()) {
+      toast.error("Please fix the form errors");
       return;
     }
     
@@ -92,8 +141,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
           name="name"
           value={formData.name}
           onChange={handleInputChange}
-          required
+          className={errors.name ? "border-red-500" : ""}
         />
+        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
       </div>
       
       <div>
@@ -104,12 +154,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
           value={formData.description}
           onChange={handleInputChange}
           rows={4}
-          required
+          className={errors.description ? "border-red-500" : ""}
         />
+        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
       </div>
       
       <div>
-        <Label htmlFor="price">Price ($)</Label>
+        <Label htmlFor="price">Price (₹)</Label>
         <Input
           id="price"
           name="price"
@@ -118,8 +169,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
           min="0"
           value={formData.price}
           onChange={handleInputChange}
-          required
+          className={errors.price ? "border-red-500" : ""}
         />
+        {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
       </div>
       
       <div>
@@ -128,10 +180,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel }
           id="imageUrl"
           name="imageUrl"
           value={formData.imageUrl}
-          onChange={handleInputChange}
+          onChange={handleImageUrlChange}
           placeholder="https://example.com/image.jpg"
-          required
+          className={errors.imageUrl ? "border-red-500" : ""}
         />
+        {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
+        
+        {imagePreview && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500 mb-1">Preview:</p>
+            <div className="border border-gray-200 rounded-md p-2 w-24 h-24">
+              <img 
+                src={imagePreview} 
+                alt="Product preview" 
+                className="w-full h-full object-cover rounded"
+                onError={() => {
+                  setImagePreview(null);
+                  toast.error("Invalid image URL");
+                }} 
+              />
+            </div>
+          </div>
+        )}
       </div>
       
       <div>

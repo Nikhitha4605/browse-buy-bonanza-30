@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -28,9 +27,7 @@ const VoiceAssistantPage = () => {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize speech recognition and synthesis
   useEffect(() => {
-    // Check for SpeechRecognition support
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
       setSupported(false);
@@ -38,7 +35,6 @@ const VoiceAssistantPage = () => {
       return;
     }
     
-    // Initialize speech recognition
     recognitionRef.current = new SpeechRecognitionAPI();
     recognitionRef.current.continuous = false;
     recognitionRef.current.interimResults = false;
@@ -61,17 +57,15 @@ const VoiceAssistantPage = () => {
       setIsListening(false);
     };
     
-    // Initialize speech synthesis
     if ('speechSynthesis' in window) {
       synthesisRef.current = window.speechSynthesis;
     } else {
       toast.warning("Text-to-speech is not supported in your browser");
     }
     
-    // Cleanup function
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        recognitionRef.current.stop();
       }
       if (synthesisRef.current) {
         synthesisRef.current.cancel();
@@ -79,7 +73,6 @@ const VoiceAssistantPage = () => {
     };
   }, []);
 
-  // Scroll to bottom of conversation when it updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversationHistory]);
@@ -112,7 +105,7 @@ const VoiceAssistantPage = () => {
 
   const speak = (text: string) => {
     if (synthesisRef.current) {
-      synthesisRef.current.cancel(); // Stop any current speech
+      synthesisRef.current.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 1.1;
       synthesisRef.current.speak(utterance);
@@ -120,26 +113,20 @@ const VoiceAssistantPage = () => {
   };
 
   const handleUserInput = (input: string) => {
-    // Add user message to conversation
     setConversationHistory(prev => [...prev, { type: 'user', text: input }]);
     
-    // Process the command
     const result = processVoiceCommand(input);
     
-    // Add assistant response to conversation
     setConversationHistory(prev => [...prev, { type: 'assistant', text: result.response }]);
     
-    // Speak the response
     speak(result.response);
     
-    // Handle navigation if needed
     if (result.type === 'navigate' && result.data) {
       setTimeout(() => {
         navigate(result.data as string);
       }, 1500);
     }
     
-    // Handle search if needed
     if (result.type === 'search' && result.data) {
       setTimeout(() => {
         navigate(`/products?search=${encodeURIComponent(result.data as string)}`);
@@ -150,7 +137,6 @@ const VoiceAssistantPage = () => {
   const processVoiceCommand = (command: string): VoiceCommandResult => {
     const lowerCommand = command.toLowerCase();
     
-    // Search for products
     if (lowerCommand.includes('search for') || lowerCommand.includes('find') || lowerCommand.includes('show me')) {
       const searchTerms = lowerCommand.replace(/search for|find|show me/gi, '').trim();
       return {
@@ -160,9 +146,7 @@ const VoiceAssistantPage = () => {
       };
     }
     
-    // Navigation commands
     if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('navigate to')) {
-      // Home page
       if (lowerCommand.includes('home')) {
         return {
           type: 'navigate',
@@ -171,7 +155,6 @@ const VoiceAssistantPage = () => {
         };
       }
       
-      // Products page
       if (lowerCommand.includes('products') || lowerCommand.includes('shop')) {
         return {
           type: 'navigate',
@@ -180,7 +163,6 @@ const VoiceAssistantPage = () => {
         };
       }
       
-      // Cart page
       if (lowerCommand.includes('cart') || lowerCommand.includes('shopping cart')) {
         return {
           type: 'navigate',
@@ -189,7 +171,6 @@ const VoiceAssistantPage = () => {
         };
       }
       
-      // Categories
       for (const category of categories) {
         if (lowerCommand.includes(category.toLowerCase())) {
           return {
@@ -200,7 +181,6 @@ const VoiceAssistantPage = () => {
         }
       }
       
-      // Generic navigation attempt
       const destination = lowerCommand.replace(/go to|open|navigate to/gi, '').trim();
       return {
         type: 'navigate',
@@ -209,11 +189,9 @@ const VoiceAssistantPage = () => {
       };
     }
     
-    // Product information queries
     if (lowerCommand.includes('tell me about') || lowerCommand.includes('what is') || lowerCommand.includes('information on')) {
       const productQuery = lowerCommand.replace(/tell me about|what is|information on/gi, '').trim();
       
-      // Try to find a matching product
       const matchedProduct = products.find(p => 
         p.name.toLowerCase().includes(productQuery) || 
         p.description.toLowerCase().includes(productQuery)
@@ -228,7 +206,6 @@ const VoiceAssistantPage = () => {
       }
     }
     
-    // Help command
     if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
       return {
         type: 'info',
@@ -236,15 +213,13 @@ const VoiceAssistantPage = () => {
       };
     }
     
-    // Greetings
     if (lowerCommand.includes('hello') || lowerCommand.includes('hi') || lowerCommand.includes('hey')) {
       return {
         type: 'info',
         response: 'Hello! How can I help you with your shopping today?'
       };
     }
-
-    // Unknown command
+    
     return {
       type: 'unknown',
       response: "I'm not sure what you're asking. Try asking to search for products, navigate to a page, or get information about an item."
@@ -289,7 +264,6 @@ const VoiceAssistantPage = () => {
                 <div ref={messagesEndRef} />
               </div>
               
-              {/* Input area */}
               <div className="border-t pt-4">
                 <form onSubmit={handleTextSubmit} className="flex gap-2">
                   <div className="relative flex-grow">

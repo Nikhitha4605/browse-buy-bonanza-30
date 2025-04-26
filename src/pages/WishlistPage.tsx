@@ -7,34 +7,55 @@ import Layout from "@/components/layout/Layout";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/components/ui/sonner";
 import { Product, WishlistItem } from "@/types/product";
+import { useAuth } from "@/context/AuthContext";
+
+// Key for localStorage
+const WISHLIST_KEY = 'snapshop_wishlist';
 
 const WishlistPage = () => {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  
+  // Generate a consistent storage key that can include user ID when available
+  const getStorageKey = () => {
+    return user ? `${WISHLIST_KEY}_${user.id}` : WISHLIST_KEY;
+  };
+
+  const loadWishlist = () => {
+    const storageKey = getStorageKey();
+    const storedWishlist = localStorage.getItem(storageKey);
+    if (storedWishlist) {
+      setWishlistItems(JSON.parse(storedWishlist));
+    }
+  };
 
   useEffect(() => {
-    const loadWishlist = () => {
-      const storedWishlist = localStorage.getItem("wishlist");
-      if (storedWishlist) {
-        setWishlistItems(JSON.parse(storedWishlist));
-      }
-    };
-
     loadWishlist();
     
-    // Add event listener to refresh wishlist when storage changes
-    window.addEventListener("storage", loadWishlist);
+    // Add event listener for wishlist updates
+    const handleWishlistUpdate = () => {
+      loadWishlist();
+    };
+    
+    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+    window.addEventListener("storage", handleWishlistUpdate);
     
     return () => {
-      window.removeEventListener("storage", loadWishlist);
+      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+      window.removeEventListener("storage", handleWishlistUpdate);
     };
-  }, []);
+  }, [user]); // Re-run when user changes
 
   const removeFromWishlist = (productId: string) => {
+    const storageKey = getStorageKey();
     const updatedWishlist = wishlistItems.filter(item => item.id !== productId);
     setWishlistItems(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    localStorage.setItem(storageKey, JSON.stringify(updatedWishlist));
     toast.info("Item removed from wishlist");
+    
+    // Notify other components
+    window.dispatchEvent(new CustomEvent('wishlistUpdated'));
   };
 
   const moveToCart = (product: Product) => {
@@ -44,9 +65,13 @@ const WishlistPage = () => {
   };
 
   const clearWishlist = () => {
+    const storageKey = getStorageKey();
     setWishlistItems([]);
-    localStorage.setItem("wishlist", "[]");
+    localStorage.setItem(storageKey, "[]");
     toast.info("Wishlist cleared");
+    
+    // Notify other components
+    window.dispatchEvent(new CustomEvent('wishlistUpdated'));
   };
 
   return (

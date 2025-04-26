@@ -1,21 +1,36 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 
+const STORAGE_KEY = "store_settings";
+
 const StoreSettings = () => {
   const [storeSettings, setStoreSettings] = useState({
     storeName: "SnapShop",
     email: "contact@snapshop.com",
     phone: "+1 123-456-7890",
-    address: "123 E-Commerce St, Online City, 12345",
+    address: "123 E-Commerce St, Online City, 12345, India",
   });
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem(STORAGE_KEY);
+    if (savedSettings) {
+      setStoreSettings(JSON.parse(savedSettings));
+    }
+  }, []);
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Save settings to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(storeSettings));
+    
+    // In a real application, this would be where you'd save to a backend
     toast.success("Store settings saved successfully!");
   };
 

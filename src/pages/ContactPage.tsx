@@ -141,7 +141,7 @@ const ContactPage = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-medium mb-1">Email</h3>
-                    <p className="text-gray-600">support@browsebuy.com</p>
+                    <p className="text-gray-600">support@snapshop.com</p>
                   </div>
                   <div>
                     <h3 className="text-lg font-medium mb-1">Phone</h3>
@@ -154,7 +154,7 @@ const ContactPage = () => {
                       <br />
                       Shopping City, SC 12345
                       <br />
-                      United States
+                      India
                     </p>
                   </div>
                   <div>
@@ -178,7 +178,7 @@ const ContactPage = () => {
                       How long does shipping take?
                     </h3>
                     <p className="text-gray-600">
-                      Standard shipping typically takes 3-5 business days within the US.
+                      Standard shipping typically takes 3-5 business days within India.
                     </p>
                   </div>
                   <div>
